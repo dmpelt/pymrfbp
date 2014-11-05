@@ -1,7 +1,7 @@
 pymrfbp
 =======
 
-Python implementation of the MR-FBP tomographic reconstruction method, published in [1]/
+Python implementation of the MR-FBP tomographic reconstruction method, published in [1].
 
 * [\[Latest Release\]](https://github.com/dmpelt/pymrfbp/releases/latest)
 * [\[Releases / Version History\]](https://github.com/dmpelt/pymrfbp/releases)
