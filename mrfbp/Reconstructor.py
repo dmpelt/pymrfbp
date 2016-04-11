@@ -23,7 +23,7 @@
 #
 #-----------------------------------------------------------------------
 
-import Reductors
+from . import Reductors
 import numpy as np
 import numpy.linalg as na
 import scipy.ndimage.filters as snf
