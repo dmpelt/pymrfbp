@@ -23,5 +23,4 @@
 #
 #-----------------------------------------------------------------------
 
-from .Reconstructor import *
 from .astra_plugin import plugin

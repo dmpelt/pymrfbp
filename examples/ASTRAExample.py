@@ -23,34 +23,38 @@
 #
 #-----------------------------------------------------------------------
 
-import mrfbp
-from mrfbp.ASTRAProjector import ASTRAProjector2D
 import astra
 import numpy as np
+
+# Register MR-FBP plugin with ASTRA
+import mrfbp
+astra.plugin.register(mrfbp.plugin)
 
 # Create ASTRA geometries
 vol_geom = astra.create_vol_geom(256,256)
 proj_geom = astra.create_proj_geom('parallel',1.0,256,np.linspace(0,np.pi,32,False))
 
-# Create the ASTRA projector
-p = ASTRAProjector2D(proj_geom,vol_geom)
+# Create the ASTRA projector (change 'linear' to 'cuda' to use GPU)
+pid = astra.create_projector('linear', proj_geom, vol_geom)
+p = astra.OpTomo(pid)
 
 # Load the phantom from disk
 testPhantom = np.load('phantom.npy')
 
 # Calculate the forward projection of the phantom
-testSino = p*testPhantom
+testSino = (p*testPhantom).reshape(p.sshape)
 
 # Add some noise to the sinogram
 testSino = astra.add_noise_to_sino(testSino,10**4)
 
-# Create the MR-FBP Reconstructor
-rec = mrfbp.Reconstructor(p)
-
 # Reconstruct the image using MR-FBP, FBP, and SIRT.
-mrRec = rec.reconstruct(testSino)
-fbpRec = p.reconstruct('FBP_CUDA',testSino)
-sirtRec = p.reconstruct('SIRT_CUDA',testSino,200)
+mrRec = p.reconstruct('MR-FBP',testSino)
+if astra.projector.is_cuda(pid):
+    fbpRec = p.reconstruct('FBP_CUDA',testSino)
+    sirtRec = p.reconstruct('SIRT_CUDA',testSino,200)
+else:
+    fbpRec = p.reconstruct('FBP',testSino)
+    sirtRec = p.reconstruct('SIRT',testSino,200)
 
 # Show the different reconstructions on screen
 import pylab
